@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controller</title>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
     <style>
         body {
             display: flex;
@@ -14,96 +15,51 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
-            touch-action: none; /* Prevent zooming */
+            touch-action: none;
         }
 
-        button {
-            width: 80px;
-            height: 80px;
-            font-size: 18px;
-            margin: 10px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            border-radius: 10px;
-            cursor: pointer;
+        #joystick-container {
+            width: 300px;
+            height: 300px;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
         }
-
-        button:active {
-            background-color: #0056b3;
-        }
-
-        .button-grid {
-            display: grid;
-            grid-template-rows: repeat(3, 1fr);
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .button-grid button:nth-child(2) { grid-column: 2; } /* Up */
-        .button-grid button:nth-child(4) { grid-column: 1; } /* Left */
-        .button-grid button:nth-child(5) { grid-column: 2; } /* Center */
-        .button-grid button:nth-child(6) { grid-column: 3; } /* Right */
-        .button-grid button:nth-child(8) { grid-column: 2; } /* Down */
     </style>
 </head>
 <body>
-    <h1>Controller</h1>
-    <div class="button-grid">
-        <button id="up">Up</button>
-        <button id="left">Left</button>
-        <button id="center" disabled></button>
-        <button id="right">Right</button>
-        <button id="down">Down</button>
-    </div>
+    <h1>Joystick Controller</h1>
+    <div id="joystick-container"></div>
 
     <script>
         const socket = io();
 
-        // Track active movement interval
-        let activeMovement = null;
-
-        // Function to start continuous movement
-        function startMovement(direction) {
-            // Prevent multiple intervals from being created
-            if (activeMovement) return;
-
-            // Emit the initial movement event
-            socket.emit("move_player", { direction });
-
-            // Set an interval for continuous movement
-            activeMovement = setInterval(() => {
-                socket.emit("move_player", { direction });
-            }, 50); // Faster interval for smoother movement
-        }
-
-        // Function to stop movement
-        function stopMovement() {
-            if (activeMovement) {
-                clearInterval(activeMovement);
-                activeMovement = null;
-            }
-        }
-
-        // Add event listeners for buttons
-        ["up", "down", "left", "right"].forEach((direction) => {
-            const button = document.getElementById(direction);
-
-            // Mouse events
-            button.addEventListener("mousedown", () => startMovement(direction));
-            button.addEventListener("mouseup", stopMovement);
-
-            // Touch events
-            button.addEventListener("touchstart", (e) => {
-                e.preventDefault(); // Prevent default touch behavior
-                startMovement(direction);
-            });
-            button.addEventListener("touchend", stopMovement);
+        // Initialize NippleJS joystick
+        const joystick = nipplejs.create({
+            zone: document.getElementById("joystick-container"),
+            mode: "dynamic",
+            color: "blue",
         });
 
-        // Stop movement if the user moves the pointer off the button
-        window.addEventListener("mouseup", stopMovement);
-        window.addEventListener("touchend", stopMovement);
+        // Send joystick movement data to the server
+        joystick.on("move", (evt, data) => {
+            const angle = data.angle.degree; // Get the angle of movement
+            const distance = data.distance; // Get the distance from the center
+            const direction = data.direction?.angle; // "up", "down", "left", "right"
+
+            // Map distance to a speed factor
+            const speed = Math.min(10, Math.round(distance / 10));
+
+            if (direction) {
+                socket.emit("move_player", { direction, speed });
+            }
+        });
+
+        // Stop movement when the joystick is released
+        joystick.on("end", () => {
+            socket.emit("stop_player");
+        });
     </script>
 </body>
 </html>
