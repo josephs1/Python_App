@@ -60,57 +60,50 @@
     <script>
         const socket = io();
 
-        // Movement intervals
-        let movementInterval;
+        // Track active movement interval
+        let activeMovement = null;
 
         // Function to start continuous movement
         function startMovement(direction) {
+            // Prevent multiple intervals from being created
+            if (activeMovement) return;
+
             // Emit the initial movement event
             socket.emit("move_player", { direction });
 
             // Set an interval for continuous movement
-            movementInterval = setInterval(() => {
+            activeMovement = setInterval(() => {
                 socket.emit("move_player", { direction });
-            }, 100); // Every 100 ms
+            }, 50); // Faster interval for smoother movement
         }
 
         // Function to stop movement
         function stopMovement() {
-            clearInterval(movementInterval);
+            if (activeMovement) {
+                clearInterval(activeMovement);
+                activeMovement = null;
+            }
         }
 
         // Add event listeners for buttons
-        document.getElementById("up").addEventListener("mousedown", () => startMovement("up"));
-        document.getElementById("up").addEventListener("mouseup", stopMovement);
-        document.getElementById("up").addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            startMovement("up");
-        });
-        document.getElementById("up").addEventListener("touchend", stopMovement);
+        ["up", "down", "left", "right"].forEach((direction) => {
+            const button = document.getElementById(direction);
 
-        document.getElementById("down").addEventListener("mousedown", () => startMovement("down"));
-        document.getElementById("down").addEventListener("mouseup", stopMovement);
-        document.getElementById("down").addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            startMovement("down");
-        });
-        document.getElementById("down").addEventListener("touchend", stopMovement);
+            // Mouse events
+            button.addEventListener("mousedown", () => startMovement(direction));
+            button.addEventListener("mouseup", stopMovement);
 
-        document.getElementById("left").addEventListener("mousedown", () => startMovement("left"));
-        document.getElementById("left").addEventListener("mouseup", stopMovement);
-        document.getElementById("left").addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            startMovement("left");
+            // Touch events
+            button.addEventListener("touchstart", (e) => {
+                e.preventDefault(); // Prevent default touch behavior
+                startMovement(direction);
+            });
+            button.addEventListener("touchend", stopMovement);
         });
-        document.getElementById("left").addEventListener("touchend", stopMovement);
 
-        document.getElementById("right").addEventListener("mousedown", () => startMovement("right"));
-        document.getElementById("right").addEventListener("mouseup", stopMovement);
-        document.getElementById("right").addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            startMovement("right");
-        });
-        document.getElementById("right").addEventListener("touchend", stopMovement);
+        // Stop movement if the user moves the pointer off the button
+        window.addEventListener("mouseup", stopMovement);
+        window.addEventListener("touchend", stopMovement);
     </script>
 </body>
 </html>
