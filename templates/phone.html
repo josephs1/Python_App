@@ -1,0 +1,26 @@
+<script>
+    const socket = io();
+    const joinButton = document.getElementById("join-button");
+    const usernameInput = document.getElementById("username");
+    const controlsDiv = document.getElementById("controls");
+
+    // Join the game
+    joinButton.onclick = () => {
+        const username = usernameInput.value;
+        if (username) {
+            socket.emit("join_game", { name: username });
+            controlsDiv.style.display = "block";
+            joinButton.style.display = "none";
+            usernameInput.style.display = "none";
+        }
+    };
+
+    socket.on("joined_ack", (data) => {
+        alert(data.message);
+    });
+
+    // Send movement commands to the server
+    function move(direction) {
+        socket.emit("move_sprite", { direction });  // Emit the move event with the direction
+    }
+</script>

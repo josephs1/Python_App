@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixiJS Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.0.4/pixi.min.js"></script>
+</head>
+<body>
+    <h1>PixiJS Rectangle Animation</h1>
+    <div id="game-container"></div>
+    <script>
+        // Create a PixiJS application
+        const app = new PIXI.Application({
+            width: 400,       // Canvas width
+            height: 300,      // Canvas height
+            backgroundColor: 0x1099bb, // Background color
+        });
+
+        // Add the canvas to the DOM
+        document.getElementById("game-container").appendChild(app.view);
+
+        // Create a red rectangle
+        const rectangle = new PIXI.Graphics();
+        rectangle.beginFill(0xff0000);       // Fill color: Red
+        rectangle.drawRect(0, 0, 50, 50);   // x, y, width, height
+        rectangle.endFill();
+
+        // Set initial position of the rectangle
+        rectangle.x = 50;
+        rectangle.y = 50;
+
+        // Add the rectangle to the stage
+        app.stage.addChild(rectangle);
+
+        // Rectangle velocity
+        let dx = 2;
+        let dy = 2;
+
+        // Animation loop
+        app.ticker.add(() => {
+            // Update rectangle position
+            rectangle.x += dx;
+            rectangle.y += dy;
+
+            // Bounce off edges
+            if (rectangle.x <= 0 || rectangle.x + rectangle.width >= app.renderer.width) {
+                dx = -dx;
+            }
+            if (rectangle.y <= 0 || rectangle.y + rectangle.height >= app.renderer.height) {
+                dy = -dy;
+            }
+        });
+    </script>
+</body>
+</html>

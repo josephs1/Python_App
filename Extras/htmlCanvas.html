@@ -1,0 +1,22 @@
+<canvas id="gameCanvas" width="400" height="300"></canvas>
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  let x = 50, y = 50, dx = 2, dy = 2;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+    ctx.fillStyle = 'red';
+    ctx.fillRect(x, y, 50, 50); // Draw a rectangle
+    x += dx;
+    y += dy;
+
+    // Bounce off the edges
+    if (x <= 0 || x + 50 >= canvas.width) dx = -dx;
+    if (y <= 0 || y + 50 >= canvas.height) dy = -dy;
+
+    requestAnimationFrame(draw); // Schedule the next frame
+  }
+  draw(); // Start the animation
+</script>

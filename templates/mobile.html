@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controller</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        button {
+            padding: 20px;
+            margin: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Game Controller</h1>
+    <button id="startBtn">Start Game</button>
+    <button id="stopBtn">Stop Game</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script>
+        const socket = io('http://{{ laptop_ip }}:5000');
+
+        // Send button press events to the server
+        document.getElementById('startBtn').onclick = () => {
+            socket.emit('button_pressed', { action: 'start' });
+        };
+
+        document.getElementById('stopBtn').onclick = () => {
+            socket.emit('button_pressed', { action: 'stop' });
+        };
+    </script>
+</body>
+</html>

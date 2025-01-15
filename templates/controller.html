@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controller</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        button {
+            width: 80px;
+            height: 80px;
+            font-size: 18px;
+            margin: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        button:active {
+            background-color: #0056b3;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-rows: repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .button-grid button:nth-child(2) { grid-column: 2; } /* Up */
+        .button-grid button:nth-child(4) { grid-column: 1; } /* Left */
+        .button-grid button:nth-child(5) { grid-column: 2; } /* Center */
+        .button-grid button:nth-child(6) { grid-column: 3; } /* Right */
+        .button-grid button:nth-child(8) { grid-column: 2; } /* Down */
+    </style>
+</head>
+<body>
+    <h1>Controller</h1>
+    <div class="button-grid">
+        <button id="up">Up</button>
+        <button id="left">Left</button>
+        <button id="center" disabled></button>
+        <button id="right">Right</button>
+        <button id="down">Down</button>
+    </div>
+
+    <script>
+        const socket = io();
+
+        // Emit movement commands when buttons are clicked
+        document.getElementById("up").addEventListener("click", () => {
+            socket.emit("move_player", { direction: "up" });
+        });
+
+        document.getElementById("down").addEventListener("click", () => {
+            socket.emit("move_player", { direction: "down" });
+        });
+
+        document.getElementById("left").addEventListener("click", () => {
+            socket.emit("move_player", { direction: "left" });
+        });
+
+        document.getElementById("right").addEventListener("click", () => {
+            socket.emit("move_player", { direction: "right" });
+        });
+    </script>
+</body>
+</html>
